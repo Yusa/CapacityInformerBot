@@ -35,6 +35,7 @@ def checker(bot, job):
 				if result_json["space"] != 0:
 					bot.send_message(chat_id=chat_id, text=f"Current empty space in course with CRN: {crn} is => {result_json['space']}")
 					total_list[chat_id].remove(crn)
+					update_total_list()
 
 
 def stop(bot, update, args):
@@ -46,6 +47,7 @@ def stop(bot, update, args):
 		if crn in total_list[chat_id_key]:
 			total_list[chat_id_key].remove(crn)
 			bot.send_message(chat_id=chat_id, text=f"The course with CRN: {crn} is removed from your tracked course list.")
+			update_total_list()
 	else:
 		bot.send_message(chat_id=chat_id, text="Give me a CRN Code")
 
@@ -63,6 +65,12 @@ def check_crn(bot, update, args):
 	if len(args) == 1:
 		crn_code = args[0]
 		if len(crn_code) == 5 and crn_code.isdigit():
+			URL = f"{ENDPOINT}{crn_code}"
+			r = requests.get(URL)
+			result_json = r.json()
+			print("Result is: ".format(result_json))
+			if result_json != None:
+				bot.send_message(chat_id=chat_id, text=f"Current empty space in class with CRN {crn_code} is => {result_json['space']}")
 			if chat_id_key not in total_list.keys():
 				total_list[chat_id_key] = [crn_code]
 				update_total_list()
